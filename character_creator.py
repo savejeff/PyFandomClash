@@ -1,17 +1,18 @@
 from data_structures import *
 
+
 def create_character(
 	name: str,
 	player: str,
 	P: int,
 	A: int,
 	W: int,
-	abilities: list[Ability],
-	items: list[Item],
-	size: str = 'Medium',  # 'Small', 'Medium', 'Large'
+	size: str = FIGURE_SIZE_MEDIUM,  # 'Small', 'Medium', 'Large'
+	fandom_trait: Optional[TypeFandom] = None,  # e.g., 'Anime', 'Superhero'
+	role: Optional[str] = None,  # e.g., 'Warrior', 'Ranger'
+	abilities: list[Ability] | None = None,
+	items : list[Item] | None = None,
 	position: tuple = (0, 0),  # Starting position in grid units
-	fandom_trait: Optional[str] = None,  # e.g., 'Anime', 'Superhero'
-	role: Optional[str] = None  # e.g., 'Warrior', 'Ranger'
 ) -> Character:
 	"""
 	Creates and returns a Character instance with calculated derived stats.
@@ -29,25 +30,26 @@ def create_character(
 	MR = 1 + (A // 2)  # Movement Range in grid units
 
 	# Apply size modifiers
-	if size == 'Large':
+	if size == FIGURE_SIZE_LARGE:
 		max_HP += 2
 		MR -= 1
-	elif size == 'Small':
+	elif size == FIGURE_SIZE_MEDIUM:
+		pass # Medium size has no modifiers
+	elif size == FIGURE_SIZE_SMALL:
 		max_HP -= 1
 		MR += 1
-	# Medium size has no modifiers
 
 	# Apply role bonuses
 	temp_P = 0
 	temp_A = 0
 	temp_W = 0
-	if role == 'Warrior':
+	if role == ROLE_WARRIOR:
 		P += 1
-	elif role == 'Ranger':
+	elif role == ROLE_RANGER:
 		W += 1
-	elif role == 'Scout':
+	elif role == ROLE_SCOUT:
 		A += 1
-	elif role == 'Support':
+	elif role == ROLE_SUPPORT:
 		W += 1
 	# Add other roles as needed
 

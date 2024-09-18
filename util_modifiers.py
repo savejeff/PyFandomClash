@@ -2,27 +2,22 @@ from data_structures import *
 from util import *
 
 
-# Function to handle character movement
-def move_character(character: Character, new_position: tuple):
-	from math import sqrt
-	x1, y1 = character.position
-	x2, y2 = new_position
-	distance = sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-	units_moved = distance
-	if units_moved <= character.MR:
-		character.position = new_position
-		return f"{character.name} moves to position {character.position}."
-	else:
-		return f"{character.name} cannot move that far. Maximum movement range is {character.MR} steps."
+ATTACK_TYPE_MELEE = "melee"
+ATTACK_TYPE_RANGED = "ranged"
+
+DEFEND_REACTION_DODGE = "dodge"
+DEFEND_REACTION_BLOCK = "block"
+
+TypeDefendReaction = str
 
 
 # Function to handle attacks
-def attack(attacker: Character, defender: Character, attack_type='melee', defender_reaction: Optional[str]=None):
+def attack(attacker: Character, defender: Character, attack_type=ATTACK_TYPE_MELEE, defender_reaction: Optional[TypeDefendReaction] = None):
 	# Determine attack and defense stats
-	if attack_type == 'melee':
+	if attack_type == ATTACK_TYPE_MELEE:
 		attack_stat = attacker.P + attacker.temp_P
 		base_damage = attacker.P + attacker.temp_P
-	elif attack_type == 'ranged':
+	elif attack_type == ATTACK_TYPE_RANGED:
 		attack_stat = attacker.W + attacker.temp_W
 		base_damage = attacker.W + attacker.temp_W
 	else:
@@ -33,10 +28,10 @@ def attack(attacker: Character, defender: Character, attack_type='melee', defend
 
 	# Defender's roll and reaction
 	defense_stat = defender.A + defender.temp_A
-	if defender_reaction == 'dodge' and defender.AP >= 1:
+	if defender_reaction == DEFEND_REACTION_DODGE and defender.AP >= 1:
 		defender.AP -= 1
-		defense_roll = average_roll_with_advantage() + defense_stat
-	elif defender_reaction == 'block' and defender.AP >= 1:
+		defense_roll = roll_with_advantage() + defense_stat
+	elif defender_reaction == DEFEND_REACTION_BLOCK and defender.AP >= 1:
 		defender.AP -= 1
 		defense_roll = average_roll_2d6() + defender.P + defender.temp_P
 	else:
@@ -59,7 +54,7 @@ def use_ability(user: Character, ability: Ability, target: Optional[Character]=N
 		user.AP -= ability.cost
 		# Apply the ability's effect
 		if ability.effect:
-			return ability.effect(user, target)
+			return ability.effect(user, target, [])
 		else:
 			return f"{user.name} uses {ability.name}."
 	else:
@@ -67,8 +62,7 @@ def use_ability(user: Character, ability: Ability, target: Optional[Character]=N
 
 
 # Example ability effect functions
-def heal_ability(user: Character, target: Character):
-	heal_amount = 3  # Example heal amount
+def heal_ability(user: Character, target: Character, heal_amount : int):
 	target.HP += heal_amount
 	if target.HP > target.max_HP:
 		target.HP = target.max_HP
@@ -113,3 +107,43 @@ def healing_potion_effect(character: Character):
 		character.HP = character.max_HP
 	return f"{character.name} consumes a Healing Potion and restores {heal_amount} HP."
 
+
+
+
+if __name__ == '__main__':
+
+	from character_creator import create_character
+
+	res = []
+	for i in range(1000):
+		#print(f"Attempt #{i}")
+
+		CharDev1 = create_character(CHARACTER_DEV1,
+			PLAYER_DEV1,
+			P=7, A=5, W=3,
+			size= FIGURE_SIZE_LARGE,
+			fandom_trait=FANDOM_ANIME,
+			role=ROLE_WARRIOR
+		)
+
+		CharDev2 = create_character(CHARACTER_DEV2,
+			PLAYER_DEV2,
+			P=5, A=7, W=3,
+			size= FIGURE_SIZE_SMALL,
+			fandom_trait=FANDOM_ANIME,
+			role=ROLE_SUPPORT
+		)
+
+		attack_count = 0
+		while CharDev2.HP > 0:
+			attack_count += 1
+			CharDev2.AP = 10
+			#print
+			(
+				attack(CharDev1, CharDev2, ATTACK_TYPE_MELEE, defender_reaction=DEFEND_REACTION_BLOCK)
+			)
+		res.append(attack_count)
+
+	print(res)
+
+	print(f"Avg: {sum(res) / len(res)}")

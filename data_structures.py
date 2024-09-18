@@ -1,6 +1,15 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Callable
 
+
+from defines import *
+
+# Define the Role class
+@dataclass
+class Role:
+	name: str
+	ability: 'ability'
+	bonus: Callable[['Character'], None]
 
 
 # Define the Ability class
@@ -9,8 +18,7 @@ class Ability:
 	name: str
 	cost: int  # AP cost
 	description: str
-	effect: Optional[callable] = None  # Function to apply the ability effect
-
+	effect: Optional[callable] = None # Optional[Callable[['Character', 'Character' | None, list['Character']], None]] = None  # Function to apply the ability effect onto (Character_User, Character_Target (optional))
 
 # Define the Item class
 @dataclass
@@ -48,6 +56,9 @@ class Character:
 
 	def is_alive(self):
 		return self.HP > 0
+
+
+
 
 
 # Define the GameState class
